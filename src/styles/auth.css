@@ -89,6 +89,7 @@
 
 .form-group {
     margin-bottom: 15px;
+    display: flex;
 }
 
 .form-group input {

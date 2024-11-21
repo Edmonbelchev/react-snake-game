@@ -18,43 +18,18 @@ function App() {
   const [score, setScore] = useState(0);
   const [speed] = useState(5);
   const [isGameOver, setIsGameOver] = useState(false);
-  const [actualDirection, setActualDirection] = useState([0, 0]);
   const directionRef = useRef([0, 0]);
-  const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(0.5);
-  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const hideTimeoutRef = useRef(null);
-  // const soundsRef = useRef({
-  //   eat: new Audio("public/sounds/eat.mp3"),
-  //   collision: new Audio("public/sounds/collision.mp3"),
-  //   gameOver: new Audio("public/sounds/gameOver.mp3"),
-  // });
-  const { user, signInWithGoogle, signOut } = useAuth();
+  const { user } = useAuth();
   const [highScores, setHighScores] = useState([]);
   const [showAuth, setShowAuth] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
 
-  // Get game size from localStorage or default to medium
-  const [gameSize, setGameSize] = useState(() => {
-    return localStorage.getItem("gameSize") || "medium";
-  });
-
-  // Calculate game dimensions based on size
-  const getGameDimensions = () => {
-    switch (gameSize) {
-      case "small":
-        return { width: 400, height: 400 };
-      case "large":
-        return { width: 600, height: 600 };
-      default: // medium
-        return { width: 500, height: 500 };
-    }
-  };
-
   const style = {
     gameArea: {
       position: "relative",
-      ...getGameDimensions(),
+      width: "500px",
+      height: "500px",
       backgroundColor: "#90EE90",
       backgroundImage:
         "linear-gradient(#85e085 1px, transparent 1px), linear-gradient(90deg, #85e085 1px, transparent 1px)",
@@ -101,36 +76,6 @@ function App() {
       borderRadius: "10px",
       textAlign: "center",
     },
-  };
-
-  // Initialize sounds and set initial volume
-  // useEffect(() => {
-  //   const sounds = soundsRef.current;
-  //   Object.values(sounds).forEach((sound) => {
-  //     sound.volume = isMuted ? 0 : volume;
-  //   });
-  // }, [volume, isMuted]);
-
-  // Sound playing function
-  // const playSound = (soundName) => {
-  //   if (!isMuted && soundsRef.current[soundName]) {
-  //     const sound = soundsRef.current[soundName];
-  //     sound.currentTime = 0;
-  //     sound.volume = volume;
-  //     const playPromise = sound.play();
-  //     if (playPromise) {
-  //       playPromise.catch((error) => console.log("Sound play error:", error));
-  //     }
-  //   }
-  // };
-
-  const handleVolumeChange = (e) => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-  };
-
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
   };
 
   // Generate random food position
@@ -260,7 +205,7 @@ function App() {
       clearInterval(gameLoop);
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [direction, food, speed, isGameOver, isMuted]);
+  }, [direction, food, speed, isGameOver]);
 
   const resetGame = () => {
     setSegments([[50, 50]]);
@@ -269,19 +214,6 @@ function App() {
     setFood(generateFood());
     setScore(0);
     setIsGameOver(false);
-  };
-
-  const handleMouseEnter = () => {
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current);
-    }
-    setShowVolumeSlider(true);
-  };
-
-  const handleMouseLeave = () => {
-    hideTimeoutRef.current = setTimeout(() => {
-      setShowVolumeSlider(false);
-    }, 300);
   };
 
   // Clean up timeout on unmount
@@ -316,7 +248,7 @@ function App() {
       const q = query(
         collection(db, "scores"),
         orderBy("score", "desc"),
-        limit(10)
+        limit(5)
       );
       const querySnapshot = await getDocs(q);
       const scores = querySnapshot.docs.map((doc) => ({
@@ -341,13 +273,6 @@ function App() {
       saveScore(score);
     }
   }, [isGameOver]);
-
-  // Update game area size when gameSize changes
-  useEffect(() => {
-    const dimensions = getGameDimensions();
-    // Update any game logic that depends on size
-    // You might need to adjust snake speed, food position, etc.
-  }, [gameSize]);
 
   return (
     <div>
