@@ -1,6 +1,8 @@
 import React from 'react';
 
-const Snake = ({ segments }) => {
+const Snake = ({ segments, gameSize }) => {
+    const segmentSize = gameSize * 0.05; // 5% of game area
+
     return (
         <>
             {segments.map((segment, index) => (
@@ -8,8 +10,8 @@ const Snake = ({ segments }) => {
                     key={index}
                     style={{
                         position: 'absolute',
-                        width: '5%',
-                        height: '5%',
+                        width: `${segmentSize}px`,
+                        height: `${segmentSize}px`,
                         backgroundColor: '#4A90E2',
                         border: '1px solid #3B78C1',
                         borderRadius: '5px',

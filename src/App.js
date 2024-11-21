@@ -10,6 +10,8 @@ import Register from './components/Auth/Register';
 import UserMenu from './components/UserMenu/UserMenu';
 import './styles/auth.css';
 import './styles/userMenu.css';
+import useWindowDimensions from './hooks/useWindowDimensions';
+import MobileControls from './components/MobileControls';
 
 function App() {
   const [segments, setSegments] = useState([[50, 50]]);
@@ -24,12 +26,15 @@ function App() {
   const [highScores, setHighScores] = useState([]);
   const [showAuth, setShowAuth] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
+  const { width } = useWindowDimensions();
+  const isMobile = width <= 768;
+  const gameSize = isMobile ? Math.min(width * 0.9, 400) : 500;
 
   const style = {
     gameArea: {
       position: "relative",
-      width: "500px",
-      height: "500px",
+      width: `${gameSize}px`,
+      height: `${gameSize}px`,
       backgroundColor: "#90EE90",
       backgroundImage:
         "linear-gradient(#85e085 1px, transparent 1px), linear-gradient(90deg, #85e085 1px, transparent 1px)",
@@ -39,11 +44,12 @@ function App() {
     },
     header: {
       backgroundColor: "#458245",
-      padding: "10px 20px",
+      padding: isMobile ? "5px 10px" : "10px 20px",
       color: "white",
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
+      fontSize: isMobile ? "14px" : "16px",
     },
     authButton: {
       backgroundColor: "#4CAF50",
@@ -75,7 +81,20 @@ function App() {
       padding: "20px",
       borderRadius: "10px",
       textAlign: "center",
+      width: isMobile ? "80%" : "auto",
     },
+    restartButton: {
+      backgroundColor: "#4CAF50",
+      border: "none",
+      color: "white",
+      padding: "15px 30px",
+      borderRadius: "25px",
+      fontSize: "18px",
+      marginTop: "15px",
+      cursor: "pointer",
+      width: isMobile ? "100%" : "auto",
+      touchAction: "manipulation",
+    }
   };
 
   // Generate random food position
@@ -274,6 +293,23 @@ function App() {
     }
   }, [isGameOver]);
 
+  // Add handler for mobile controls
+  const handleMobileControl = (direction) => {
+    if (isGameOver) return;
+    
+    const directionMap = {
+      up: [0, -1],
+      down: [0, 1],
+      left: [-1, 0],
+      right: [1, 0],
+    };
+
+    const newDir = directionMap[direction];
+    if (isValidDirectionChange(newDir, directionRef.current)) {
+      setDirection(newDir);
+    }
+  };
+
   return (
     <div>
       <div style={style.header}>
@@ -292,8 +328,8 @@ function App() {
       </div>
 
       <div style={style.gameArea}>
-        <Snake segments={segments} />
-        <Food position={food} />
+        <Snake segments={segments} gameSize={gameSize} />
+        <Food position={food} gameSize={gameSize} />
         {isGameOver && (
           <div style={style.gameOver}>
             <h2>Game Over!</h2>
@@ -307,10 +343,23 @@ function App() {
                 </div>
               ))}
             </div>
-            <p>Press Enter to restart</p>
+            {isMobile ? (
+              <button 
+                style={style.restartButton}
+                onClick={resetGame}
+              >
+                Tap to Restart
+              </button>
+            ) : (
+              <p>Press Enter to restart</p>
+            )}
           </div>
         )}
       </div>
+
+      {isMobile && !isGameOver && (
+        <MobileControls onDirectionChange={handleMobileControl} />
+      )}
 
       {showAuth && (
         <div style={style.modal}>
