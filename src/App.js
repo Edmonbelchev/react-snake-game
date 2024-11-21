@@ -236,6 +236,8 @@ function App() {
         const collisionIndex = checkSelfCollision(head, currentSegments);
         if (collisionIndex !== -1 && currentSegments.length >= 5) {
           // playSound("collision");
+          const removedSegments = currentSegments.length - collisionIndex;
+          setScore(prevScore => Math.max(0, prevScore - removedSegments)); // Reduce score based on removed segments
           const newSegments = currentSegments.slice(0, collisionIndex);
           return [head, ...newSegments.slice(0, -1)];
         }
