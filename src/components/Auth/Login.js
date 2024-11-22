@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { auth } from "../../firebase";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import "../../styles/auth.css";
 
 export default function Login({ onToggleForm, onClose }) {
   const [email, setEmail] = useState("");
@@ -10,6 +11,10 @@ export default function Login({ onToggleForm, onClose }) {
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
+    if (!email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
     setIsLoading(true);
     setError("");
     
@@ -17,7 +22,24 @@ export default function Login({ onToggleForm, onClose }) {
       await signInWithEmailAndPassword(auth, email, password);
       onClose();
     } catch (error) {
-      setError("Failed to log in: " + error.message);
+      let errorMessage = "Failed to log in";
+      switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = "Invalid email address";
+          break;
+        case 'auth/user-disabled':
+          errorMessage = "This account has been disabled";
+          break;
+        case 'auth/user-not-found':
+          errorMessage = "No account found with this email";
+          break;
+        case 'auth/wrong-password':
+          errorMessage = "Incorrect password";
+          break;
+        default:
+          errorMessage = error.message;
+      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -32,7 +54,11 @@ export default function Login({ onToggleForm, onClose }) {
       await signInWithPopup(auth, provider);
       onClose();
     } catch (error) {
-      setError("Failed to log in with Google: " + error.message);
+      let errorMessage = "Failed to log in with Google";
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = "Login cancelled";
+      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -46,21 +72,27 @@ export default function Login({ onToggleForm, onClose }) {
       
       <form onSubmit={handleEmailLogin}>
         <div className="form-group">
+          <label htmlFor="email">Email</label>
           <input
+            id="email"
             type="email"
-            placeholder="Email"
+            placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
+            required
           />
         </div>
         <div className="form-group">
+          <label htmlFor="password">Password</label>
           <input
+            id="password"
             type="password"
-            placeholder="Password"
+            placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
+            required
           />
         </div>
         <button 

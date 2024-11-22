@@ -1,0 +1,143 @@
+.leaderboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #282c34;
+  min-height: 100vh;
+  color: white;
+}
+
+.leaderboard h2 {
+  color: #61dafb;
+  margin-bottom: 30px;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.scores-list {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 30px;
+}
+
+.score-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  margin: 10px 0;
+  background-color: rgba(97, 218, 251, 0.1);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.score-item:hover {
+  transform: scale(1.02);
+  background-color: rgba(97, 218, 251, 0.2);
+}
+
+.rank {
+  font-weight: bold;
+  color: #61dafb;
+  width: 50px;
+  font-size: 1.2rem;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  margin: 0 20px;
+}
+
+.player-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 15px;
+  border: 2px solid #61dafb;
+}
+
+.player-name {
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.score-value {
+  font-weight: bold;
+  color: #61dafb;
+  font-size: 1.3rem;
+  min-width: 80px;
+  text-align: right;
+}
+
+.back-button {
+  background-color: #61dafb;
+  color: #282c34;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.back-button:hover {
+  background-color: #4fa8c7;
+  transform: scale(1.05);
+}
+
+.back-button:active {
+  transform: scale(0.95);
+}
+
+.loading {
+  font-size: 1.2rem;
+  color: #61dafb;
+  margin: 20px 0;
+}
+
+.no-scores {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #61dafb;
+  margin: 20px 0;
+  padding: 20px;
+  background-color: rgba(97, 218, 251, 0.1);
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .leaderboard {
+    padding: 10px;
+  }
+
+  .leaderboard h2 {
+    font-size: 2rem;
+  }
+
+  .score-item {
+    padding: 10px;
+  }
+
+  .player-avatar {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+  }
+
+  .player-name {
+    font-size: 1rem;
+  }
+
+  .score-value {
+    font-size: 1.1rem;
+    min-width: 60px;
+  }
+
+  .rank {
+    width: 40px;
+    font-size: 1rem;
+  }
+}

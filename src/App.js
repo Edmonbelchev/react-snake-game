@@ -8,6 +8,8 @@ import { collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/fir
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import UserMenu from './components/UserMenu/UserMenu';
+import Menu from './components/Menu';
+import Leaderboard from './components/Leaderboard';
 import './styles/auth.css';
 import './styles/userMenu.css';
 import useWindowDimensions from './hooks/useWindowDimensions';
@@ -29,6 +31,7 @@ function App() {
   const { width } = useWindowDimensions();
   const isMobile = width <= 768;
   const gameSize = isMobile ? Math.min(width * 0.9, 400) : 500;
+  const [currentView, setCurrentView] = useState('menu'); // 'menu', 'game', or 'leaderboard'
 
   const style = {
     gameArea: {
@@ -251,7 +254,8 @@ function App() {
     try {
       await addDoc(collection(db, "scores"), {
         userId: user.uid,
-        userName: user.displayName,
+        userName: user.displayName || 'Anonymous',
+        photoURL: user.photoURL,
         score: score,
         timestamp: new Date(),
       });
@@ -264,16 +268,33 @@ function App() {
   // Function to load high scores
   const loadHighScores = async () => {
     try {
+      // Create a map to store highest score per user
+      const userHighScores = new Map();
+      
       const q = query(
         collection(db, "scores"),
-        orderBy("score", "desc"),
-        limit(5)
+        orderBy("score", "desc")
       );
       const querySnapshot = await getDocs(q);
-      const scores = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      
+      querySnapshot.docs.forEach(doc => {
+        const scoreData = doc.data();
+        const userId = scoreData.userId;
+        const existingScore = userHighScores.get(userId);
+        
+        if (!existingScore || scoreData.score > existingScore.score) {
+          userHighScores.set(userId, {
+            id: doc.id,
+            ...scoreData
+          });
+        }
+      });
+      
+      // Convert map to array and sort by score
+      const scores = Array.from(userHighScores.values())
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+      
       setHighScores(scores);
     } catch (error) {
       console.error("Error loading high scores:", error);
@@ -312,53 +333,76 @@ function App() {
 
   return (
     <div>
-      <div style={style.header}>
-        <div className="scores">
-          <div>Current Score: 🍎 {score}</div>
-          <div>High Score: 🏆 {highScores[0]?.score || 0}</div>
-        </div>
+      {currentView === 'menu' && (
+        <Menu
+          onStartGame={() => {
+            resetGame();
+            setCurrentView('game');
+          }}
+          onShowLeaderboard={() => setCurrentView('leaderboard')}
+        />
+      )}
 
-        {user ? (
-          <UserMenu />
-        ) : (
-          <button style={style.authButton} onClick={() => setShowAuth(true)}>
-            Sign In
-          </button>
-        )}
-      </div>
+      {currentView === 'leaderboard' && (
+        <Leaderboard onBack={() => setCurrentView('menu')} />
+      )}
 
-      <div style={style.gameArea}>
-        <Snake segments={segments} gameSize={gameSize} />
-        <Food position={food} gameSize={gameSize} />
-        {isGameOver && (
-          <div style={style.gameOver}>
-            <h2>Game Over!</h2>
-            <p>Score: {score}</p>
-            {!user && <p>Sign in to save your score!</p>}
-            <div style={{ marginTop: "20px" }}>
-              <h3>High Scores</h3>
-              {highScores.map((score, index) => (
-                <div key={score.id}>
-                  {index + 1}. {score.userName}: {score.score}
-                </div>
-              ))}
+      {currentView === 'game' && (
+        <>
+          <div style={style.header}>
+            <div className="scores">
+              <div>Current Score: 🍎 {score}</div>
+              <div>High Score: 🏆 {highScores[0]?.score || 0}</div>
             </div>
-            {isMobile ? (
-              <button 
-                style={style.restartButton}
-                onClick={resetGame}
-              >
-                Tap to Restart
-              </button>
-            ) : (
-              <p>Press Enter to restart</p>
+
+            <button 
+              style={style.authButton} 
+              onClick={() => setCurrentView('menu')}
+            >
+              Menu
+            </button>
+          </div>
+
+          <div style={style.gameArea}>
+            <Snake segments={segments} gameSize={gameSize} />
+            <Food position={food} gameSize={gameSize} />
+            {isGameOver && (
+              <div style={style.gameOver}>
+                <h2>Game Over!</h2>
+                <p>Score: {score}</p>
+                {!user && <p>Sign in to save your score!</p>}
+                <div style={{ marginTop: "20px" }}>
+                  <h3>High Scores</h3>
+                  {highScores.map((score, index) => (
+                    <div key={score.id}>
+                      {index + 1}. {score.userName}: {score.score}
+                    </div>
+                  ))}
+                </div>
+                {isMobile ? (
+                  <button 
+                    style={style.restartButton}
+                    onClick={resetGame}
+                  >
+                    Tap to Restart
+                  </button>
+                ) : (
+                  <p>Press Enter to restart</p>
+                )}
+                <button 
+                  style={{...style.restartButton, marginTop: '10px'}}
+                  onClick={() => setCurrentView('menu')}
+                >
+                  Back to Menu
+                </button>
+              </div>
             )}
           </div>
-        )}
-      </div>
 
-      {isMobile && !isGameOver && (
-        <MobileControls onDirectionChange={handleMobileControl} />
+          {isMobile && !isGameOver && (
+            <MobileControls onDirectionChange={handleMobileControl} />
+          )}
+        </>
       )}
 
       {showAuth && (
@@ -380,4 +424,3 @@ function App() {
   );
 }
 export default App;
-
