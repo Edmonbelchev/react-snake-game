@@ -32,6 +32,27 @@ function App() {
   const isMobile = width <= 768;
   const gameSize = isMobile ? Math.min(width * 0.9, 400) : 500;
   const [currentView, setCurrentView] = useState('menu'); // 'menu', 'game', or 'leaderboard'
+  const [powerUp, setPowerUp] = useState(null);
+  const [powerUpActive, setPowerUpActive] = useState(null);
+  const [powerUpTimer, setPowerUpTimer] = useState(null);
+
+  const powerUps = {
+    DOUBLE_SCORE: {
+      symbol: "🍏",
+      duration: 10000, // 10 seconds
+      effect: "2x Points!"
+    },
+    SHIELD: {
+      symbol: "🛡️",
+      duration: 8000, // 8 seconds
+      effect: "Shield Active!"
+    },
+    SHRINK: {
+      symbol: "📏",
+      duration: 0, // instant effect
+      effect: "Snake Shrunk!"
+    }
+  };
 
   const style = {
     gameArea: {
@@ -53,6 +74,8 @@ function App() {
       justifyContent: "space-between",
       alignItems: "center",
       fontSize: isMobile ? "14px" : "16px",
+      maxWidth: "500px",
+      margin: "0 auto",
     },
     authButton: {
       backgroundColor: "#4CAF50",
@@ -165,6 +188,65 @@ function App() {
     }
   };
 
+  const spawnPowerUp = () => {
+    if (Math.random() < 0.05 && !powerUp) { // 5% chance to spawn
+      const powerUpTypes = Object.keys(powerUps);
+      const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+      
+      // Generate random position within game bounds
+      const x = Math.floor(Math.random() * 19) * 5;
+      const y = Math.floor(Math.random() * 19) * 5;
+      
+      // Check if position conflicts with snake or food
+      const conflicts = segments.some(([sx, sy]) => sx === x && sy === y) || 
+                       (food[0] === x && food[1] === y);
+      
+      if (!conflicts) {
+        setPowerUp({ type: randomType, position: [x, y] });
+      }
+    }
+  };
+
+  const activatePowerUp = (type) => {
+    setPowerUpActive(type);
+    setPowerUp(null);
+
+    // Clear existing timer
+    if (powerUpTimer) {
+      clearTimeout(powerUpTimer);
+    }
+
+    // Handle instant effects
+    if (type === 'SHRINK') {
+      if (segments.length > 5) {
+        setSegments(prev => prev.slice(0, -3)); // Remove last 3 segments
+      }
+      setPowerUpActive(null);
+      return;
+    }
+
+    // Set timer for duration-based power-ups
+    const timer = setTimeout(() => {
+      setPowerUpActive(null);
+    }, powerUps[type].duration);
+    setPowerUpTimer(timer);
+  };
+
+  const checkPowerUpCollision = (head, powerUp) => {
+    if (!powerUp) return false;
+    return head[0] === powerUp.position[0] && head[1] === powerUp.position[1];
+  };
+
+  useEffect(() => {
+    // Force spawn a power-up at start
+    if (!powerUp) {
+      setPowerUp({
+        type: 'SHIELD',
+        position: [25, 25]
+      });
+    }
+  }, []);
+
   useEffect(() => {
     const handleKeyPress = (e) => {
       if (isGameOver) {
@@ -194,26 +276,39 @@ function App() {
 
         // Check wall collision
         if (checkWallCollision(head)) {
-          // playSound("gameOver");
           setIsGameOver(true);
           return currentSegments;
         }
 
-        // Check self collision
+        // Check for power-up collision
+        if (powerUp && checkPowerUpCollision(head, powerUp)) {
+          console.log('Power-up collected!');
+          activatePowerUp(powerUp.type);
+        }
+
+        // Check self collision - skip penalty if shield is active
         const collisionIndex = checkSelfCollision(head, currentSegments);
         if (collisionIndex !== -1 && currentSegments.length >= 5) {
-          // playSound("collision");
-          const removedSegments = currentSegments.length - collisionIndex;
-          setScore(prevScore => Math.max(0, prevScore - removedSegments)); // Reduce score based on removed segments
-          const newSegments = currentSegments.slice(0, collisionIndex);
-          return [head, ...newSegments.slice(0, -1)];
+          if (powerUpActive !== 'SHIELD') {
+            const removedSegments = currentSegments.length - collisionIndex;
+            setScore(prevScore => Math.max(0, prevScore - removedSegments));
+            const newSegments = currentSegments.slice(0, collisionIndex);
+            return [head, ...newSegments.slice(0, -1)];
+          }
+          // With shield, just continue through the collision
+          console.log('Shield protected from self collision!');
         }
 
         // Check if snake ate food
         if (checkFoodCollision(head, food)) {
-          // playSound("eat");
           setFood(generateFood());
-          setScore((prev) => prev + 1);
+          setScore((prev) => prev + (powerUpActive === 'DOUBLE_SCORE' ? 2 : 1));
+          
+          // Only try spawning power-up every 10 points
+          if (score > 0 && score % 10 === 0) {
+            spawnPowerUp();
+          }
+          
           return [head, ...currentSegments];
         }
 
@@ -309,7 +404,6 @@ function App() {
   // Update game over handling
   useEffect(() => {
     if (isGameOver) {
-      // playSound("gameOver");
       saveScore(score);
     }
   }, [isGameOver]);
@@ -353,6 +447,17 @@ function App() {
             <div className="scores">
               <div>Current Score: 🍎 {score}</div>
               <div>High Score: 🏆 {highScores[0]?.score || 0}</div>
+              {powerUpActive && (
+                <div style={{
+                  marginLeft: "24px",
+                  color: "#61dafb",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px"
+                }} className="power-up-effect">
+                  {powerUps[powerUpActive].symbol} {powerUps[powerUpActive].effect}
+                </div>
+              )}
             </div>
 
             <button 
@@ -366,6 +471,22 @@ function App() {
           <div style={style.gameArea}>
             <Snake segments={segments} gameSize={gameSize} />
             <Food position={food} gameSize={gameSize} />
+            {powerUp && (
+              <div 
+                className="power-up"
+                style={{
+                  position: "absolute",
+                  left: `${powerUp.position[0] * (gameSize/100)}px`,
+                  top: `${powerUp.position[1] * (gameSize/100)}px`,
+                  fontSize: "24px",
+                  fontWeight: "bold",
+                  color: "#61dafb",
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                {powerUps[powerUp.type].symbol}
+              </div>
+            )}
             {isGameOver && (
               <div style={style.gameOver}>
                 <h2>Game Over!</h2>
