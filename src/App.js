@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import Snake from "./Snake";
 import Food from "./Food";
+import RottenFood from "./RottenFood";
 import { useAuth } from './contexts/AuthContext';
 import { db } from './firebase';
-import { collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy,  getDocs } from 'firebase/firestore';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
-import UserMenu from './components/UserMenu/UserMenu';
 import Menu from './components/Menu';
 import Leaderboard from './components/Leaderboard';
 import './styles/auth.css';
@@ -19,11 +19,13 @@ function App() {
   const [segments, setSegments] = useState([[50, 50]]);
   const [direction, setDirection] = useState([0, 0]);
   const [food, setFood] = useState([25, 25]);
+  const [rottenFood, setRottenFood] = useState(null);
   const [score, setScore] = useState(0);
   const [speed] = useState(5);
   const [isGameOver, setIsGameOver] = useState(false);
   const directionRef = useRef([0, 0]);
   const hideTimeoutRef = useRef(null);
+  const rottenFoodTimerRef = useRef(null);
   const { user } = useAuth();
   const [highScores, setHighScores] = useState([]);
   const [showAuth, setShowAuth] = useState(false);
@@ -133,9 +135,30 @@ function App() {
     return newFood;
   };
 
+  // Generate rotten food and set timer to remove it
+  const spawnRottenFood = () => {
+    if (Math.random() < 0.05) { // 5% chance to spawn rotten food
+      const newRottenFood = [
+        Math.floor(Math.random() * 19) * 5,
+        Math.floor(Math.random() * 19) * 5,
+      ];
+      setRottenFood(newRottenFood);
+      
+      // Clear previous timer if exists
+      if (rottenFoodTimerRef.current) {
+        clearTimeout(rottenFoodTimerRef.current);
+      }
+      
+      // Remove rotten food after 10 seconds
+      rottenFoodTimerRef.current = setTimeout(() => {
+        setRottenFood(null);
+      }, 10000);
+    }
+  };
+
   // Check if snake ate food
-  const checkFoodCollision = (head, food) => {
-    return Math.abs(head[0] - food[0]) < 5 && Math.abs(head[1] - food[1]) < 5;
+  const checkFoodCollision = (head, foodPos) => {
+    return Math.abs(head[0] - foodPos[0]) < 5 && Math.abs(head[1] - foodPos[1]) < 5;
   };
 
   // Check wall collision and wrap position
@@ -202,7 +225,7 @@ function App() {
   };
 
   const spawnPowerUp = () => {
-    if (Math.random() < 0.05 && !powerUp) { // 5% chance to spawn
+    if (Math.random() < 0.5 && !powerUp) { // 5% chance to spawn
       const powerUpTypes = Object.keys(powerUps);
       const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
       
@@ -231,8 +254,10 @@ function App() {
 
     // Handle instant effects
     if (type === 'SHRINK') {
-      if (segments.length > 5) {
+      if (segments.length > 5 && segments.length < 20) {
         setSegments(prev => prev.slice(0, -3)); // Remove last 3 segments
+      } else if (segments.length > 20) {
+        setSegments(prev => prev.slice(0, -10)); // Remove last 10 segments
       }
       setPowerUpActive(null);
       return;
@@ -315,12 +340,23 @@ function App() {
           setFood(generateFood());
           setScore((prev) => prev + (powerUpActive === 'DOUBLE_SCORE' ? 2 : 1));
           
-          // Only try spawning power-up every 10 points
+          // Try spawning power-up and rotten food
           if (score > 0 && score % 10 === 0) {
             spawnPowerUp();
           }
+          spawnRottenFood();
           
           return [head, ...currentSegments];
+        }
+
+        // Check if snake ate rotten food
+        if (rottenFood && checkFoodCollision(head, rottenFood)) {
+          setRottenFood(null);
+          setScore((prev) => Math.max(0, prev - 2)); // Prevent negative score
+          if (rottenFoodTimerRef.current) {
+            clearTimeout(rottenFoodTimerRef.current);
+          }
+          return [head, ...currentSegments.slice(0, -1)];
         }
 
         return [head, ...currentSegments.slice(0, -1)];
@@ -344,11 +380,14 @@ function App() {
     setIsGameOver(false);
   };
 
-  // Clean up timeout on unmount
+  // Clean up timeouts
   useEffect(() => {
     return () => {
       if (hideTimeoutRef.current) {
         clearTimeout(hideTimeoutRef.current);
+      }
+      if (rottenFoodTimerRef.current) {
+        clearTimeout(rottenFoodTimerRef.current);
       }
     };
   }, []);
@@ -482,6 +521,7 @@ function App() {
           <div style={style.gameArea}>
             <Snake segments={segments} gameSize={gameSize} />
             <Food position={food} gameSize={gameSize} />
+            {rottenFood && <RottenFood position={rottenFood} gameSize={gameSize} />}
             {powerUp && (
               <div 
                 className="power-up"

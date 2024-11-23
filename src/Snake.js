@@ -3,39 +3,46 @@ import React, { useRef, useEffect } from 'react';
 const Snake = ({ segments, gameSize }) => {
     const segmentSize = gameSize * 0.05; // 5% of game area
     const prevSegments = useRef(segments);
+    const currentDirection = useRef(null);
 
     useEffect(() => {
+        if (segments.length >= 2) {
+            const [head, neck] = segments;
+            // Only update direction if not crossing wall
+            if (!isWallCrossing(head, prevSegments.current[0])) {
+                const dx = head[0] - neck[0];
+                const dy = head[1] - neck[1];
+                if (dx !== 0 || dy !== 0) {
+                    currentDirection.current = { dx, dy };
+                }
+            }
+        }
         prevSegments.current = segments;
     }, [segments]);
 
     const isWallCrossing = (currentPos, prevPos) => {
         if (!prevPos) return false;
-        // If position change is greater than 50%, it's a wall crossing
         return Math.abs(currentPos[0] - prevPos[0]) > 45 || 
                Math.abs(currentPos[1] - prevPos[1]) > 45;
     };
 
-    const getHeadRotation = (segments, prevSegments) => {
+    const getHeadRotation = (segments) => {
         if (segments.length < 2) return 'rotate(-90deg)';
         
-        const [head, neck] = segments;
-        const [prevHead] = prevSegments;
+        const [head] = segments;
+        const prevHead = prevSegments.current[0];
         
-        // If crossing wall, use previous direction
-        if (isWallCrossing(head, prevHead)) {
-            const dx = prevHead[0] - neck[0];
-            const dy = prevHead[1] - neck[1];
-            
-            // Handle edge cases for wall crossing
-            if (Math.abs(dx) > 45) { // Horizontal wall crossing
-                return dx > 0 ? 'rotate(-90deg)' : 'rotate(90deg)';
-            }
-            if (Math.abs(dy) > 45) { // Vertical wall crossing
-                return dy > 0 ? 'rotate(0deg)' : 'rotate(180deg)';
-            }
+        // If crossing wall, use stored direction
+        if (isWallCrossing(head, prevHead) && currentDirection.current) {
+            const { dx, dy } = currentDirection.current;
+            if (dx > 0) return 'rotate(-90deg)';
+            if (dx < 0) return 'rotate(90deg)';
+            if (dy > 0) return 'rotate(0deg)';
+            if (dy < 0) return 'rotate(180deg)';
         }
         
         // Normal movement
+        const [, neck] = segments;
         const dx = head[0] - neck[0];
         const dy = head[1] - neck[1];
         
@@ -69,7 +76,7 @@ const Snake = ({ segments, gameSize }) => {
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "center",
-                            transform: index === 0 ? getHeadRotation(segments, prevSegments.current) : "none",
+                            transform: index === 0 ? getHeadRotation(segments) : "none",
                             ...(index === 0 && {
                                 backgroundImage: 'url("/images/player.webp")',
                                 backgroundSize: "contain",
