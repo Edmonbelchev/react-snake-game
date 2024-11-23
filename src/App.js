@@ -108,6 +108,7 @@ function App() {
       borderRadius: "10px",
       textAlign: "center",
       width: isMobile ? "80%" : "auto",
+      zIndex: 999
     },
     restartButton: {
       backgroundColor: "#4CAF50",
@@ -137,9 +138,21 @@ function App() {
     return Math.abs(head[0] - food[0]) < 5 && Math.abs(head[1] - food[1]) < 5;
   };
 
-  // Check wall collision
+  // Check wall collision and wrap position
   const checkWallCollision = (head) => {
-    return head[0] < 0 || head[0] > 95 || head[1] < 0 || head[1] > 95;
+    if (head[0] < 0) {
+      head[0] = 95;
+    } else if (head[0] > 95) {
+      head[0] = 0;
+    }
+    
+    if (head[1] < 0) {
+      head[1] = 95;
+    } else if (head[1] > 95) {
+      head[1] = 0;
+    }
+    
+    return false;
   };
 
   // Check self collision and return collision index
@@ -290,10 +303,8 @@ function App() {
         const collisionIndex = checkSelfCollision(head, currentSegments);
         if (collisionIndex !== -1 && currentSegments.length >= 5) {
           if (powerUpActive !== 'SHIELD') {
-            const removedSegments = currentSegments.length - collisionIndex;
-            setScore(prevScore => Math.max(0, prevScore - removedSegments));
-            const newSegments = currentSegments.slice(0, collisionIndex);
-            return [head, ...newSegments.slice(0, -1)];
+            setIsGameOver(true);
+            return currentSegments;
           }
           // With shield, just continue through the collision
           console.log('Shield protected from self collision!');
