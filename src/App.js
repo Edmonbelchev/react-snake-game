@@ -10,6 +10,7 @@ import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import Menu from './components/Menu';
 import Leaderboard from './components/Leaderboard';
+import Changelog from './components/Changelog';
 import './styles/auth.css';
 import './styles/userMenu.css';
 import useWindowDimensions from './hooks/useWindowDimensions';
@@ -484,11 +485,27 @@ function App() {
             setCurrentView('game');
           }}
           onShowLeaderboard={() => setCurrentView('leaderboard')}
+          onShowChangelog={() => setCurrentView('changelog')}
         />
       )}
 
       {currentView === 'leaderboard' && (
         <Leaderboard onBack={() => setCurrentView('menu')} />
+      )}
+
+      {currentView === 'changelog' && (
+        <div className="menu-container">
+          <div className="page-header">
+            <button 
+              className="back-button" 
+              onClick={() => setCurrentView('menu')}
+            >
+              ← Back
+            </button>
+            <h1 className="page-title">What's New</h1>
+          </div>
+          <Changelog onClose={() => setCurrentView('menu')} />
+        </div>
       )}
 
       {currentView === 'game' && (

@@ -4,7 +4,7 @@ import Login from './Auth/Login';
 import Register from './Auth/Register';
 import '../styles/Menu.css';
 
-const Menu = ({ onStartGame, onShowLeaderboard }) => {
+const Menu = ({ onStartGame, onShowLeaderboard, onShowChangelog }) => {
   const { user, signOut } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
@@ -26,6 +26,9 @@ const Menu = ({ onStartGame, onShowLeaderboard }) => {
         </button>
         <button className="menu-button" onClick={onShowLeaderboard}>
           Leaderboard
+        </button>
+        <button className="menu-button" onClick={onShowChangelog}>
+          What's New
         </button>
         {user ? (
           <button className="menu-button logout-button" onClick={handleLogout}>
