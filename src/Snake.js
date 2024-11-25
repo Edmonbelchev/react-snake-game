@@ -9,60 +9,6 @@ const Snake = ({ segments, gameSize, selectedSkin = 'default' }) => {
     
     const skinConfig = skins[selectedSkin] || skins.default;
 
-    const getSegmentStyle = (index, segment, isTail) => {
-        const isHead = index === 0;
-        const baseStyle = {
-            position: "absolute",
-            width: isHead ? `${segmentSize * 1.2}px` : `${segmentSize}px`,
-            height: isHead ? `${segmentSize * 1.2}px` : `${segmentSize}px`,
-            backgroundColor: isHead ? "transparent" : skinConfig.color,
-            border: isHead ? "none" : `1px solid ${skinConfig.borderColor}`,
-            borderRadius: isTail ? "5px 5px 50% 50%" : "10px",
-            left: `${segment[0]}%`,
-            top: `${segment[1]}%`,
-            transition: "all 0.1s linear",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: isHead ? 2 : 1,
-        };
-
-        // Apply special effects based on skin type
-        if (skinConfig.glowEffect && !isHead) {
-            baseStyle.boxShadow = skinConfig.glowEffect;
-        }
-
-        if (skinConfig.metalEffect && !isHead) {
-            baseStyle.background = skinConfig.color;
-            baseStyle.boxShadow = "inset -2px -2px 4px rgba(0,0,0,0.3), inset 2px 2px 4px rgba(255,255,255,0.3)";
-        }
-
-        if (skinConfig.pixelEffect && !isHead) {
-            baseStyle.borderRadius = "0";
-            baseStyle.imageRendering = "pixelated";
-        }
-
-        if (skinConfig.starEffect && !isHead) {
-            baseStyle.className = "galaxy-segment";
-        }
-
-        if (skinConfig.animation && !isHead) {
-            baseStyle.animation = skinConfig.animation;
-        }
-
-        if (isHead) {
-            baseStyle.backgroundImage = `url("${skinConfig.headImage}")`;
-            baseStyle.backgroundSize = "contain";
-            baseStyle.backgroundPosition = "center";
-            baseStyle.backgroundRepeat = "no-repeat";
-            baseStyle.transform = getHeadRotation(segments);
-        } else if (isTail) {
-            baseStyle.transform = getTailRotation(segment, segments[segments.length - 2]);
-        }
-
-        return baseStyle;
-    };
-
     const isWallCrossing = (currentPos, prevPos) => {
         if (!prevPos) return false;
         return Math.abs(currentPos[0] - prevPos[0]) > 45 || 
@@ -119,11 +65,70 @@ const Snake = ({ segments, gameSize, selectedSkin = 'default' }) => {
         prevSegments.current = segments;
     }, [segments]);
 
+    const getSegmentStyle = (index, segment, isTail) => {
+        const isHead = index === 0;
+        const baseStyle = {
+            position: "absolute",
+            width: isHead ? `${segmentSize * 1.2}px` : `${segmentSize}px`,
+            height: isHead ? `${segmentSize * 1.2}px` : `${segmentSize}px`,
+            backgroundColor: isHead ? "transparent" : skinConfig.color,
+            border: isHead ? "none" : `1px solid ${skinConfig.borderColor}`,
+            borderRadius: isTail ? "5px 5px 50% 50%" : "10px",
+            left: `${segment[0]}%`,
+            top: `${segment[1]}%`,
+            transition: "all 0.1s linear",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: isHead ? 2 : 1,
+        };
+
+        // Apply special effects based on skin type
+        if (skinConfig.glowEffect && !isHead) {
+            baseStyle.boxShadow = skinConfig.glowEffect;
+        }
+
+        if (skinConfig.metalEffect && !isHead) {
+            baseStyle.background = skinConfig.color;
+            baseStyle.boxShadow = "inset -2px -2px 4px rgba(0,0,0,0.3), inset 2px 2px 4px rgba(255,255,255,0.3)";
+        }
+
+        if (skinConfig.pixelEffect && !isHead) {
+            baseStyle.borderRadius = "0";
+            baseStyle.imageRendering = "pixelated";
+        }
+
+        if (skinConfig.starEffect && !isHead) {
+            baseStyle.className = "galaxy-segment";
+        }
+
+        if (skinConfig.animation && !isHead) {
+            baseStyle.animation = skinConfig.animation;
+        }
+
+        if (isHead) {
+            baseStyle.backgroundImage = `url("${skinConfig.headImage}")`;
+            baseStyle.backgroundSize = "contain";
+            baseStyle.backgroundPosition = "center";
+            baseStyle.backgroundRepeat = "no-repeat";
+            baseStyle.transform = getHeadRotation(segments);
+        } else if (isTail) {
+            baseStyle.transform = getTailRotation(segment, segments[segments.length - 2]);
+        }
+
+        return baseStyle;
+    };
+
     return (
         <>
             {segments.map((segment, index) => {
                 const isTail = index === segments.length - 1;
                 const style = getSegmentStyle(index, segment, isTail);
+
+                const prevSegment = prevSegments.current[index];
+                const crossing = isWallCrossing(segment, prevSegment);
+                
+                style.transition = crossing ? "none" : "all 0.1s linear";
                 
                 return (
                     <div
