@@ -54,6 +54,18 @@ const Snake = ({ segments, gameSize }) => {
         return 'rotate(-90deg)';
     };
 
+    const getTailRotation = (tail, prevTail) => {
+        const dx = tail[0] - prevTail[0];
+        const dy = tail[1] - prevTail[1];
+        
+        if (dx > 0) return 'rotate(90deg)';
+        if (dx < 0) return 'rotate(-90deg)';
+        if (dy > 0) return 'rotate(180deg)';
+        if (dy < 0) return 'rotate(0deg)';
+        
+        return 'rotate(0deg)';
+    };
+
     return (
         <>
             {segments.map((segment, index) => {
@@ -69,14 +81,15 @@ const Snake = ({ segments, gameSize }) => {
                             height: `${segmentSize}px`,
                             backgroundColor: index === 0 ? "transparent" : "#4a8f4a",
                             border: index === 0 ? "none" : "1px solid #2e5a2e",
-                            borderRadius: "10px",
+                            borderRadius: index === segments.length - 1 ? "5px 5px 50% 50%" : "10px",
                             left: `${segment[0]}%`,
                             top: `${segment[1]}%`,
                             transition: crossing ? "none" : "all 0.1s linear",
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "center",
-                            transform: index === 0 ? getHeadRotation(segments) : "none",
+                            transform: index === 0 ? getHeadRotation(segments) : 
+                                     index === segments.length - 1 ? getTailRotation(segment, segments[segments.length - 2]) : "none",
                             ...(index === 0 && {
                                 backgroundImage: 'url("/images/player.webp")',
                                 backgroundSize: "contain",

@@ -42,7 +42,7 @@ function App() {
   const powerUps = {
     DOUBLE_SCORE: {
       symbol: "🍏",
-      duration: 10000, // 10 seconds
+      duration: 20000, // 20 seconds
       effect: "2x Points!"
     },
     SHIELD: {
@@ -138,7 +138,7 @@ function App() {
 
   // Generate rotten food and set timer to remove it
   const spawnRottenFood = () => {
-    if (Math.random() < 0.05) { // 5% chance to spawn rotten food
+    if (Math.random() < 0.03) { // 3% chance to spawn rotten food
       const newRottenFood = [
         Math.floor(Math.random() * 19) * 5,
         Math.floor(Math.random() * 19) * 5,
