@@ -4,7 +4,7 @@ import Login from './Auth/Login';
 import Register from './Auth/Register';
 import '../styles/Menu.css';
 
-const Menu = ({ onStartGame, onShowLeaderboard, onShowChangelog }) => {
+const Menu = ({ onStartGame, onShowLeaderboard, onShowChangelog, onShowSkins }) => {
   const { user, signOut } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
@@ -27,6 +27,11 @@ const Menu = ({ onStartGame, onShowLeaderboard, onShowChangelog }) => {
         <button className="menu-button" onClick={onShowLeaderboard}>
           Leaderboard
         </button>
+        {user && (
+          <button className="menu-button" onClick={onShowSkins}>
+            Skins
+          </button>
+        )}
         <button className="menu-button" onClick={onShowChangelog}>
           What's New
         </button>
