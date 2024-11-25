@@ -1,0 +1,144 @@
+.skins-menu {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.skins-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.skins-header h2 {
+    margin: 0;
+    color: #fff;
+}
+
+.skins-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.skin-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.skin-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.skin-card.locked {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.skin-card.locked:hover {
+    transform: none;
+}
+
+.skin-card.selected {
+    border: 2px solid #4CAF50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.skin-preview {
+    height: 100px;
+    position: relative;
+    margin-bottom: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.preview-segment {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid;
+    transition: all 0.3s ease;
+}
+
+.skin-info {
+    text-align: center;
+}
+
+.skin-info h3 {
+    margin: 0 0 0.5rem 0;
+    color: #fff;
+}
+
+.skin-info p {
+    margin: 0 0 1rem 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.unlock-requirement {
+    color: #ff9800;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.unlocked {
+    color: #4CAF50;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.back-button {
+    display: block;
+    margin: 2rem auto;
+    padding: 0.8rem 2rem;
+    background: #2196F3;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.back-button:hover {
+    background: #1976D2;
+}
+
+.skins-login-message {
+    text-align: center;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    color: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .skins-menu {
+        padding: 1rem;
+    }
+    
+    .skins-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .skin-preview {
+        height: 80px;
+    }
+    
+    .preview-segment {
+        width: 15px;
+        height: 15px;
+    }
+}

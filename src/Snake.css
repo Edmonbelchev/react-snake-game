@@ -1,0 +1,50 @@
+@keyframes rainbow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.galaxy-segment {
+    position: relative;
+    overflow: hidden;
+}
+
+.galaxy-segment::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background-image: 
+        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+        radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+    background-size: 550px 550px, 350px 350px, 250px 250px;
+    background-position: 0 0, 40px 60px, 130px 270px;
+    animation: stars 8s linear infinite;
+    transform: rotate(45deg);
+}
+
+@keyframes stars {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Metal effect enhancement */
+[data-skin="metal"] {
+    background-clip: padding-box;
+    backdrop-filter: contrast(1.1) brightness(1.1);
+}
+
+/* Ghost effect enhancement */
+[data-skin="ghost"] {
+    backdrop-filter: blur(2px);
+    mix-blend-mode: screen;
+}
+
+/* Rainbow effect enhancement */
+[data-skin="rainbow"] {
+    background-size: 800% 800%;
+    animation: rainbow 8s ease infinite;
+}

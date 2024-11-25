@@ -15,6 +15,7 @@ import './styles/auth.css';
 import './styles/userMenu.css';
 import useWindowDimensions from './hooks/useWindowDimensions';
 import MobileControls from './components/MobileControls';
+import SkinsMenu from './components/SkinsMenu';
 
 function App() {
   const [segments, setSegments] = useState([[50, 50]]);
@@ -38,6 +39,7 @@ function App() {
   const [powerUp, setPowerUp] = useState(null);
   const [powerUpActive, setPowerUpActive] = useState(null);
   const [powerUpTimer, setPowerUpTimer] = useState(null);
+  const [selectedSkin, setSelectedSkin] = useState('default');
 
   const powerUps = {
     DOUBLE_SCORE: {
@@ -486,11 +488,21 @@ function App() {
           }}
           onShowLeaderboard={() => setCurrentView('leaderboard')}
           onShowChangelog={() => setCurrentView('changelog')}
+          onShowSkins={() => setCurrentView('snake-skins')}
         />
       )}
 
       {currentView === 'leaderboard' && (
         <Leaderboard onBack={() => setCurrentView('menu')} />
+      )}
+
+      {currentView === 'snake-skins' && (
+        <SkinsMenu
+          onBack={() => setCurrentView('menu')}
+          selectedSkin={selectedSkin}
+          onSelectSkin={setSelectedSkin}
+          highScore={highScores[0]?.score || 0}
+        />
       )}
 
       {currentView === 'changelog' && (
@@ -536,7 +548,11 @@ function App() {
           </div>
 
           <div style={style.gameArea}>
-            <Snake segments={segments} gameSize={gameSize} />
+            <Snake 
+              segments={segments} 
+              gameSize={gameSize}
+              selectedSkin={selectedSkin}
+            />
             <Food position={food} gameSize={gameSize} />
             {rottenFood && <RottenFood position={rottenFood} gameSize={gameSize} />}
             {powerUp && (
