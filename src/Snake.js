@@ -71,9 +71,9 @@ const Snake = ({ segments, gameSize, selectedSkin = 'default' }) => {
             position: "absolute",
             width: isHead ? `${segmentSize * 1.2}px` : `${segmentSize}px`,
             height: isHead ? `${segmentSize * 1.2}px` : `${segmentSize}px`,
-            backgroundColor: isHead ? "transparent" : skinConfig.color,
-            border: isHead ? "none" : `1px solid ${skinConfig.borderColor}`,
-            borderRadius: isTail ? "5px 5px 50% 50%" : "10px",
+            backgroundColor: isHead ? "transparent" : "transparent",
+            border: isHead ? "none" : "none",
+            borderRadius: isTail ? "5px 5px 50% 50%" : "0",
             left: `${segment[0]}%`,
             top: `${segment[1]}%`,
             transition: "all 0.1s linear",
@@ -81,39 +81,29 @@ const Snake = ({ segments, gameSize, selectedSkin = 'default' }) => {
             justifyContent: "center",
             alignItems: "center",
             zIndex: isHead ? 2 : 1,
+            backgroundSize: "contain",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
         };
-
-        // Apply special effects based on skin type
-        if (skinConfig.glowEffect && !isHead) {
-            baseStyle.boxShadow = skinConfig.glowEffect;
-        }
-
-        if (skinConfig.metalEffect && !isHead) {
-            baseStyle.background = skinConfig.color;
-            baseStyle.boxShadow = "inset -2px -2px 4px rgba(0,0,0,0.3), inset 2px 2px 4px rgba(255,255,255,0.3)";
-        }
-
-        if (skinConfig.pixelEffect && !isHead) {
-            baseStyle.borderRadius = "0";
-            baseStyle.imageRendering = "pixelated";
-        }
-
-        if (skinConfig.starEffect && !isHead) {
-            baseStyle.className = "galaxy-segment";
-        }
-
-        if (skinConfig.animation && !isHead) {
-            baseStyle.animation = skinConfig.animation;
-        }
 
         if (isHead) {
             baseStyle.backgroundImage = `url("${skinConfig.headImage}")`;
-            baseStyle.backgroundSize = "contain";
-            baseStyle.backgroundPosition = "center";
-            baseStyle.backgroundRepeat = "no-repeat";
             baseStyle.transform = getHeadRotation(segments);
         } else if (isTail) {
+            baseStyle.backgroundColor = skinConfig.color || '#4a8f4a';
+            baseStyle.border = `1px solid ${skinConfig.borderColor || '#2e5a2e'}`;
             baseStyle.transform = getTailRotation(segment, segments[segments.length - 2]);
+            if (skinConfig.glowEffect) {
+                baseStyle.boxShadow = skinConfig.glowEffect;
+            }
+        } else if (skinConfig.bodyImage) {
+            baseStyle.backgroundImage = `url("${skinConfig.bodyImage}")`;
+        } else {
+            baseStyle.backgroundColor = skinConfig.color || '#4a8f4a';
+            baseStyle.border = `1px solid ${skinConfig.borderColor || '#2e5a2e'}`;
+            if (skinConfig.glowEffect) {
+                baseStyle.boxShadow = skinConfig.glowEffect;
+            }
         }
 
         return baseStyle;
