@@ -23,10 +23,12 @@ const SkinsMenu = ({ onBack, selectedSkin, onSelectSkin, highScore }) => {
 
     const renderPreview = (skinId, skin) => {
         const segments = [
+            [17, 25],
             [25, 25],
-            [35, 25],
-            [45, 25],
-            [55, 25],
+            [33, 25],
+            [41, 25],
+            [49, 25],
+            [57, 25],
         ];
 
         return (
@@ -38,10 +40,29 @@ const SkinsMenu = ({ onBack, selectedSkin, onSelectSkin, highScore }) => {
                         style={{
                             left: `${pos[0]}%`,
                             top: `${pos[1]}%`,
-                            backgroundColor: skin.color,
-                            borderColor: skin.borderColor,
-                            boxShadow: skin.glowEffect,
+                            backgroundColor: (index === 0 || index === segments.length - 1) ? 'transparent' : (skin.bodyImage ? 'transparent' : skin.color),
+                            borderColor: (index === 0 || index === segments.length - 1) ? 'transparent' : skin.borderColor,
+                            boxShadow: index === 0 ? 'none' : skin.glowEffect,
                             animation: skin.animation,
+                            ...(index === 0 && {
+                                backgroundImage: `url(${skin.headImage})`,
+                                backgroundSize: 'contain',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundPosition: 'center',
+                                zIndex: 2,
+                                border: 'none',
+                                transform: 'rotate(90deg)'
+                            }),
+                            ...(index !== 0 && skin.bodyImage && {
+                                backgroundImage: `url(${skin.bodyImage})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center'
+                            }),
+                            ...(index == segments.length - 1 && skin.tailImage && {
+                                backgroundImage: `url(${skin.tailImage})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center'
+                            }),
                             ...(skin.metalEffect && {
                                 backgroundClip: 'padding-box',
                                 backdropFilter: 'contrast(1.1) brightness(1.1)'
@@ -49,7 +70,12 @@ const SkinsMenu = ({ onBack, selectedSkin, onSelectSkin, highScore }) => {
                             ...(skin.pixelEffect && {
                                 borderRadius: 0,
                                 imageRendering: 'pixelated'
-                            })
+                            }),
+                            ...(skin.borderRadius && {
+                                borderRadius: skin.borderRadius
+                            }),
+                            border: index === 0 ? 'none' : `1px solid ${skin.borderColor || '#2e5a2e'}`,
+                            zIndex: index === 0 ? 2 : 1
                         }}
                         data-skin={skinId}
                     />

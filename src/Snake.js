@@ -83,28 +83,44 @@ const Snake = ({ segments, gameSize, selectedSkin = 'default' }) => {
             zIndex: isHead ? 2 : 1,
             backgroundSize: "contain",
             backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
+            backgroundRepeat: "no-repeat"
         };
 
         if (isHead) {
             baseStyle.backgroundImage = `url("${skinConfig.headImage}")`;
             baseStyle.transform = getHeadRotation(segments);
-        } else if (isTail) {
+        } 
+        
+        else if (isTail) {
             baseStyle.backgroundColor = skinConfig.color || '#4a8f4a';
             baseStyle.border = `1px solid ${skinConfig.borderColor || '#2e5a2e'}`;
             baseStyle.transform = getTailRotation(segment, segments[segments.length - 2]);
             if (skinConfig.glowEffect) {
                 baseStyle.boxShadow = skinConfig.glowEffect;
             }
-        } else if (skinConfig.bodyImage) {
-            baseStyle.backgroundImage = `url("${skinConfig.bodyImage}")`;
         } else {
-            baseStyle.backgroundColor = skinConfig.color || '#4a8f4a';
-            baseStyle.border = `1px solid ${skinConfig.borderColor || '#2e5a2e'}`;
+
+            if (skinConfig.bodyImage) {
+                baseStyle.backgroundImage = `url("${skinConfig.bodyImage}")`;
+            } 
+            
+            if (skinConfig.borderRadius) {
+                baseStyle.borderRadius = `${skinConfig.borderRadius}px`;
+            } 
+            
+            if(skinConfig.color) {
+                baseStyle.backgroundColor = skinConfig.color;
+            }
+            
+            if(skinConfig.borderColor) {
+                baseStyle.border = `1px solid ${skinConfig.borderColor}`;
+            }
+    
             if (skinConfig.glowEffect) {
                 baseStyle.boxShadow = skinConfig.glowEffect;
             }
         }
+        
 
         return baseStyle;
     };

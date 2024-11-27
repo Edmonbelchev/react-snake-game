@@ -6,6 +6,7 @@ export const skins = {
     borderColor: '#2e5a2e',
     headImage: '/images/player.webp',
     requiredScore: 0,
+    borderRadius: 4
   },
   ghost: {
     name: 'Ghost Snake',
@@ -15,6 +16,7 @@ export const skins = {
     headImage: '/images/player.webp',
     requiredScore: 50,
     glowEffect: '0 0 10px rgba(255, 255, 255, 0.5)',
+    borderRadius: 4
   },
   blue: {
     name: 'Blue Snake',
@@ -23,6 +25,7 @@ export const skins = {
     borderColor: '#003366',
     headImage: '/images/player.webp',
     requiredScore: 100,
+    borderRadius: 4,
   },
   blueV2: {
     name: 'Blue Snake V2',
@@ -31,6 +34,7 @@ export const skins = {
     borderColor: '#003366',
     headImage: '/images/player.webp',
     requiredScore: 150,
+    borderRadius: 4,
   },
   blueV3: {
     name: 'Blue Snake V3',
@@ -39,6 +43,7 @@ export const skins = {
     borderColor: '#003366',
     headImage: '/images/player.webp',
     requiredScore: 200,
+    borderRadius: 4,
   },
   green: {
     name: 'Green Snake',
@@ -47,6 +52,7 @@ export const skins = {
     borderColor: '#2e5a2e',
     headImage: '/images/player.webp',
     requiredScore: 250,
+    borderRadius: 4,
   },
   greenV2: {
     name: 'Green Snake V2',
@@ -63,6 +69,7 @@ export const skins = {
     borderColor: '#2e5a2e',
     headImage: '/images/player.webp',
     requiredScore: 350,
+    borderRadius: 4,
   },
   orange: {
     name: 'Orange Snake',
@@ -71,6 +78,7 @@ export const skins = {
     borderColor: '#cc3300',
     headImage: '/images/player.webp',
     requiredScore: 400,
+    borderRadius: 4,
   },
   orangeV2: {
     name: 'Orange Snake V2',
@@ -79,6 +87,7 @@ export const skins = {
     borderColor: '#cc3300',
     headImage: '/images/player.webp',
     requiredScore: 450,
+    borderRadius: 4,
   },
   orangeV3: {
     name: 'Orange Snake V3',
@@ -87,5 +96,15 @@ export const skins = {
     borderColor: '#cc3300',
     headImage: '/images/player.webp',
     requiredScore: 500,
+    borderRadius: 4,
+  },
+  greenStars: {
+    name: 'Green Stars',
+    description: 'A snake with green stars',
+    borderColor: 'green',
+    color: 'green',
+    headImage: '/images/player.webp',
+    requiredScore: 10,
+    borderRadius: 50,
   },
 };
